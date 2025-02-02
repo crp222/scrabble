@@ -4,7 +4,7 @@ import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.model.Board;
 import hu.simontamas.scrabble.model.Position;
 import hu.simontamas.scrabble.model.ValidationResult;
-import hu.simontamas.scrabble.service.WordsService;
+import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.utils.BoardUtils;
 import javafx.concurrent.Task;
 import lombok.RequiredArgsConstructor;

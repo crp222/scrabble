@@ -1,6 +1,7 @@
 package hu.simontamas.scrabble.view;
 
 import hu.simontamas.scrabble.ScrabbleApplication;
+import hu.simontamas.scrabble.enums.AiS;
 import hu.simontamas.scrabble.model.Board;
 import hu.simontamas.scrabble.service.AiService;
 import hu.simontamas.scrabble.service.BoardService;
@@ -8,10 +9,9 @@ import hu.simontamas.scrabble.service.HandService;
 import hu.simontamas.scrabble.service.StorageService;
 import hu.simontamas.scrabble.threads.BruteForceSearch;
 import hu.simontamas.scrabble.utils.HandUtils;
+import javafx.collections.ObservableListBase;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 @Component
 public class MainView {
@@ -39,6 +40,9 @@ public class MainView {
     @FXML
     public Pane HandPane;
 
+    @FXML
+    public ChoiceBox<AiS> SelectAiComboBox;
+
     @Autowired
     public BoardService boardService;
     @Autowired
@@ -54,6 +58,9 @@ public class MainView {
     public void initialize() {
         boardService.drawBoard(BoardPane);
         handService.drawHand(HandPane);
+
+        SelectAiComboBox.setValue(AiS.BRUTE_FORCE);
+        SelectAiComboBox.getItems().addAll(AiS.values());
     }
 
     @FXML
@@ -68,7 +75,7 @@ public class MainView {
 
     @FXML
     public void runBruteForceSearch() {
-        aiService.runAi(BruteForceSearch.class, AiResults, unused -> {
+        aiService.runAi(SelectAiComboBox.getValue().type, AiResults, unused -> {
             boardService.drawBoard(BoardPane);
             handService.drawHand(HandPane);
             return null;

@@ -22,7 +22,7 @@
       <Pane fx:id="HandPane" layoutX="48.0" layoutY="679.0" prefHeight="48.0" prefWidth="567.0" />
       <Label layoutX="48.0" layoutY="662.0" prefHeight="17.0" prefWidth="109.0" text="Computer's hand" />
       <Button layoutX="611.0" layoutY="275.0" mnemonicParsing="false" onAction="#runBruteForceSearch" text="Run AI" />
-      <ChoiceBox layoutX="674.0" layoutY="275.0" prefWidth="150.0" />
+      <ChoiceBox fx:id="SelectAiComboBox" layoutX="674.0" layoutY="275.0" prefWidth="150.0" />
       <ScrollPane layoutX="605.0" layoutY="312.0" prefHeight="307.0" prefWidth="295.0">
          <content>
             <VBox fx:id="AiResults" prefHeight="307.0" prefWidth="292.0" />

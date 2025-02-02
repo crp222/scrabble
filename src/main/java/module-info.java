@@ -20,4 +20,6 @@ module hu.simontamas.scrabble {
     exports hu.simontamas.scrabble.enums;
     exports hu.simontamas.scrabble.threads;
     exports hu.simontamas.scrabble.utils;
+    exports hu.simontamas.scrabble.service.wordService;
+    opens hu.simontamas.scrabble.service.wordService to spring.core;
 }

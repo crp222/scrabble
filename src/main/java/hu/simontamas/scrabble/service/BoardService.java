@@ -2,9 +2,9 @@ package hu.simontamas.scrabble.service;
 
 import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.model.Board;
-import hu.simontamas.scrabble.model.ValidationResult;
+import hu.simontamas.scrabble.service.wordService.SimpleWordService;
+import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.threads.ValidateBoardTask;
-import hu.simontamas.scrabble.utils.BoardUtils;
 import hu.simontamas.scrabble.viewElements.LetterInputField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -99,6 +99,7 @@ public class BoardService {
     }
 
     public void validateBoard(Label errorLabel, Label scoreLabel) {
+        wordService.setType(SimpleWordService.class);
         validateBoard(errorLabel, scoreLabel, null);
     }
 

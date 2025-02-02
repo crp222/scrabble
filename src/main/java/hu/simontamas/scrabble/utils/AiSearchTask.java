@@ -4,7 +4,7 @@ import hu.simontamas.scrabble.model.AiResult;
 import hu.simontamas.scrabble.model.Board;
 import hu.simontamas.scrabble.service.BoardService;
 import hu.simontamas.scrabble.service.HandService;
-import hu.simontamas.scrabble.service.WordsService;
+import hu.simontamas.scrabble.service.wordService.WordsService;
 import javafx.concurrent.Task;
 import lombok.RequiredArgsConstructor;
 

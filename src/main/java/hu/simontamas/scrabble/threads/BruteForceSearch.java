@@ -7,7 +7,7 @@ import hu.simontamas.scrabble.model.Board;
 import hu.simontamas.scrabble.model.ValidationResult;
 import hu.simontamas.scrabble.service.BoardService;
 import hu.simontamas.scrabble.service.HandService;
-import hu.simontamas.scrabble.service.WordsService;
+import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.utils.AiSearchTask;
 import hu.simontamas.scrabble.utils.BoardUtils;
 
@@ -30,7 +30,7 @@ public class BruteForceSearch extends AiSearchTask {
         return aiResult;
     }
 
-    private void search(Letters[] state, AiResult aiResult) throws AiException {
+    protected void search(Letters[] state, AiResult aiResult) throws AiException {
         Set<String> positions = BoardUtils.getLetterPositions(state);
         for(String position : positions) {
             String[] parts = position.split("-");
@@ -79,7 +79,7 @@ public class BruteForceSearch extends AiSearchTask {
         }
     }
 
-    private void tryToFillWord(AiResult aiResult, int row, int col, List<Letters> word, int dir, int center) {
+    protected void tryToFillWord(AiResult aiResult, int row, int col, List<Letters> word, int dir, int center) {
         try {
             AiResult.AiResultWord aiResultWord = new AiResult.AiResultWord();
             aiResultWord.setUsedLetters(new ArrayList<>());

@@ -1,6 +1,6 @@
-package hu.simontamas.scrabble.service;
+package hu.simontamas.scrabble.service.wordService;
 
-import org.springframework.stereotype.Service;
+import hu.simontamas.scrabble.service.IWordService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-@Service
-public class WordsService {
+
+public class SimpleWordService extends IWordService {
 
     private final Set<String> words = new HashSet<>();
 
-    public WordsService() {
+    public SimpleWordService() {
         try {
             loadWords();
         }catch (Exception e) {
@@ -26,7 +26,7 @@ public class WordsService {
         return words;
     }
 
-    private void loadWords() throws IOException {
+    public void loadWords() throws IOException {
         File file = new File(".\\src\\main\\resources\\hu\\simontamas\\scrabble\\assets\\dictionary.txt");
         InputStream inputStream = new FileInputStream(file);
         Scanner scanner = new Scanner(inputStream);

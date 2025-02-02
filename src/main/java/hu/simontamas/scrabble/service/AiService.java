@@ -2,7 +2,7 @@ package hu.simontamas.scrabble.service;
 
 import hu.simontamas.scrabble.exceptions.AiException;
 import hu.simontamas.scrabble.model.AiResult;
-import hu.simontamas.scrabble.model.Hand;
+import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.utils.AiSearchTask;
 import hu.simontamas.scrabble.utils.BoardUtils;
 import hu.simontamas.scrabble.utils.HandUtils;
@@ -24,7 +24,6 @@ public class AiService {
     private final HandService handService;
     private final WordsService wordsService;
     private final BoardService boardService;
-
     private final ThreadService threadService;
 
     public void runAi(final Class<? extends AiSearchTask> aiSearchClass, VBox foundWords) {
