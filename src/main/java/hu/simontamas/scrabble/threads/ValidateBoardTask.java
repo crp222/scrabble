@@ -51,6 +51,10 @@ public class ValidateBoardTask extends Task<ValidationResult> {
 
     @Override
     protected ValidationResult call() throws Exception {
+        return check();
+    }
+
+    public ValidationResult check() {
         ValidationResult result = new ValidationResult();
         Letters[] newState = board.newState;
         checkReachableAndNeighbors(result, newState);

@@ -57,7 +57,7 @@ public class AiService {
 
                     button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
                         HandUtils.resetHandNewState(handService.getCurrentHand());
-                        BoardUtils.fillInWord(word.getPositions(), word.getLetters(), boardService.getBoard());
+                        BoardUtils.fillInWord(word.getPositions(), word.getUsedLetters(), boardService.getBoard());
                         HandUtils.removeFromNewHand(word.getUsedLetters(), handService.getCurrentHand());
                         resultClickCallback.apply(null);
                     });

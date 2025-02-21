@@ -4,42 +4,67 @@ import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.exceptions.AiException;
 import hu.simontamas.scrabble.model.AiResult;
 import hu.simontamas.scrabble.model.Board;
+import hu.simontamas.scrabble.model.Position;
 import hu.simontamas.scrabble.model.ValidationResult;
 import hu.simontamas.scrabble.service.BoardService;
 import hu.simontamas.scrabble.service.HandService;
+import hu.simontamas.scrabble.service.wordService.SimpleWordService;
 import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.utils.AiSearchTask;
 import hu.simontamas.scrabble.utils.BoardUtils;
+import hu.simontamas.scrabble.utils.WordUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class BruteForceSearch extends AiSearchTask {
 
-    private final static boolean DEVMODE = false;
+    public final static int MAX_WORD_LENGTH = 11;
 
-    private final static int MAX_DEEP = -1;
+    // The AI stops after finding this amount of words in a row or col
+    public static int WORD_LIMIT = 2;
+
+    public static int MAX_WORD_COUNT = 10;
+
+    private final Set<String> hookerWords = new HashSet<>();
+
+    private final Set<String> positionDirAlreadyCheckedMap = new HashSet<>();
+
+    private int longestFoundWord = 0;
+
+    private int maxErrorWithLongestFoundWord = 2;
 
     public BruteForceSearch(HandService handService, WordsService wordsService, BoardService boardService) {
         super(handService, boardService.getBoard(), wordsService, boardService);
+        DEVMODE = false;
     }
+
     @Override
-    protected AiResult call() throws Exception {
+    public AiResult callAi() throws Exception {
+        wordsService.setType(SimpleWordService.class);
         AiResult aiResult = new AiResult();
         search(board.state, aiResult);
         return aiResult;
     }
 
+    @Override
+    public void setUpFastestSearch() {
+        MAX_WORD_COUNT = 2;
+    }
+
     protected void search(Letters[] state, AiResult aiResult) throws AiException {
+        longestFoundWord = 0;
+        preSearchHookerWords();
         Set<String> positions = BoardUtils.getLetterPositions(state);
-        for(String position : positions) {
+        for (String position : positions) {
             String[] parts = position.split("-");
             int row = Integer.parseInt(parts[0]);
             int col = Integer.parseInt(parts[1]);
-            if(BoardUtils.getLetter(row, col, state) == null) {
+            if (BoardUtils.getLetter(row, col, state) == null) {
                 continue;
             }
-            String sec = BoardUtils.getLetter(row, col, state).toString();
+
+            String sec = state[row * Board.SIZE + col].toString();
 
             try {
                 handService.getCurrentHandStr();
@@ -47,45 +72,93 @@ public class BruteForceSearch extends AiSearchTask {
                 throw new AiException("Hand cannot be empty!");
             }
 
-            for(int i = 10; i > 2; i--) {
-                computeResults(aiResult, row, col, sec, i);
+            computeResults(aiResult, row, col, sec, handService.getCurrentHandStr(), WORD_LIMIT);
 
-                if(aiResult.getWords().size() >= MAX_DEEP && MAX_DEEP != -1) {
-                    aiResult.setWords(
-                            aiResult.getWords().stream().sorted(Comparator.comparing(AiResult.AiResultWord::getScore).reversed())
-                                    .collect(Collectors.toList())
-                    );
+            if (row + 1 < Board.SIZE && BoardUtils.getLetter(row + 1, col, boardService.getBoard().state) == null) {
+                searchHookers(aiResult, row + 1, col);
+            }
+
+            if (col + 1 < Board.SIZE && BoardUtils.getLetter(row, col + 1, boardService.getBoard().state) == null) {
+                searchHookers(aiResult, row, col + 1);
+            }
+
+            aiResult.setWords(
+                    aiResult.getWords().stream().sorted(Comparator.comparing(AiResult.AiResultWord::getScore).reversed())
+                            .collect(Collectors.toList())
+            );
+
+            if (aiResult.getWords().size() > MAX_WORD_COUNT) {
+                return;
+            }
+        }
+    }
+
+    protected void searchHookers(AiResult aiResult, int row, int col) {
+        List<String> distinctLetters = handService.getCurrentHandStr().stream().distinct().toList();
+        for (String letter : distinctLetters) {
+            List<String> newLetters = handService.getCurrentHandStr().stream().filter(l -> !Objects.equals(l, letter)).toList();
+            computeResults(aiResult, row, col, letter, newLetters, 1, hookerWords.stream().toList());
+        }
+    }
+
+    protected void preSearchHookerWords() {
+        List<String> distinctLetters = handService.getCurrentHandStr().stream().distinct().toList();
+        for (String letter : distinctLetters) {
+            List<String> newLetters = distinctLetters.stream().filter(l -> !Objects.equals(l, letter)).toList();
+            hookerWords.addAll(wordsService.wordsIncludingSec(newLetters, letter));
+        }
+    }
+
+    protected void computeResults(AiResult aiResult, int row, int col, String sec, List<String> handLetters, int limit) {
+        computeResults(aiResult, row, col, sec, handLetters, limit, null);
+    }
+
+    private void computeResults(AiResult aiResult, int row, int col, String sec, List<String> handLetters, int limit,
+                                List<String> words) {
+        if (words == null) {
+            words = wordsService.wordsIncludingSec(handLetters, sec);
+        }
+        for (String word : words) {
+            for (int j = 0; j < word.length(); j++) {
+                if (aiResult.getStrWords().contains(word)) {
+                    return;
+                }
+                int foundWordCount = 0;
+
+                List<Letters> letters = WordUtils.strToLetters(word);
+
+                Position p = Position.builder().x(row).y(col).build();
+                if (!positionDirAlreadyCheckedMap.contains(p + ": 0")){
+                    if (tryToFillWord(aiResult, row, col, letters, 0, j)) {
+                        foundWordCount++;
+                    }
+                }
+
+                resetState();
+
+                if (!positionDirAlreadyCheckedMap.contains(p + ": 1")) {
+                    if (tryToFillWord(aiResult, row, col, letters, 1, j)) {
+                        foundWordCount++;
+                    }
+                }
+
+                resetState();
+
+                if (foundWordCount >= limit) {
                     break;
                 }
             }
         }
     }
 
-    private void computeResults(AiResult aiResult, int row, int col, String sec, int wordLength) {
-        for(int j = wordLength; j > 0; j--) {
-            List<String> words = wordsService.wordsIncludingSecInPosition(handService.getCurrentHandStr() ,wordLength, sec,j);
-            for(String word : words) {
-                // TODO: branching when found letter with 2 length for example 'TY'
-                List<Letters> letters = strToLetters(word);
-                tryToFillWord(aiResult, row, col, letters, 0, j);
-                resetState();
-            }
-            for(String word : words) {
-                // TODO: branching when found letter with 2 length for example 'TY'
-                List<Letters> letters = strToLetters(word);
-                tryToFillWord(aiResult, row, col, letters, 1, j);
-                resetState();
-            }
-        }
-    }
-
-    protected void tryToFillWord(AiResult aiResult, int row, int col, List<Letters> word, int dir, int center) {
+    protected boolean tryToFillWord(AiResult aiResult, int row, int col, List<Letters> word, int dir, int center) {
         try {
+            if(word.size() < longestFoundWord - maxErrorWithLongestFoundWord) {
+                return false;
+            }
+
             AiResult.AiResultWord aiResultWord = new AiResult.AiResultWord();
             aiResultWord.setUsedLetters(new ArrayList<>());
-            Letters[] letters = new Letters[word.size()];
-            word.toArray(letters);
-            aiResultWord.setLetters(letters);
             List<String> positions = new ArrayList<>(); // these are like 1-1 or 3-2
             Iterator<Letters> wordIterator = word.iterator();
             int wordStart, wordEnd;
@@ -96,16 +169,20 @@ public class BruteForceSearch extends AiSearchTask {
                     wordStart = col - center;
                     wordEnd = wordStart + word.size();
                     if (wordStart < 0 || wordEnd > Board.SIZE) {
-                        throw new IllegalArgumentException("Word placement is out of horizontal bounds!");
+                        return false;
                     }
 
 
                     for (int i = -center; i < word.size() - center; i++) {
                         int index = row * Board.SIZE + col + i;
-                        if(boardService.getBoard().state[index] != null) {
+                        Letters next = wordIterator.next();
+                        if (boardService.getBoard().state[index] != null) {
+                            if (boardService.getBoard().state[index] != next) {
+                                return false;
+                            }
                             continue;
                         }
-                        boardService.getBoard().newState[index] = wordIterator.next();
+                        boardService.getBoard().newState[index] = next;
                         positions.add(row + "-" + (col + i)); // Save position
                         aiResultWord.getUsedLetters().add(boardService.getBoard().newState[index]);  // Add new used letter
                     }
@@ -117,15 +194,19 @@ public class BruteForceSearch extends AiSearchTask {
                     wordStart = row - center;
                     wordEnd = wordStart + word.size();
                     if (wordStart < 0 || wordEnd > Board.SIZE) {
-                        throw new IllegalArgumentException("Word placement is out of vertical bounds!");
+                        return false;
                     }
 
                     for (int i = -center; i < word.size() - center; i++) {
                         int index = (row + i) * Board.SIZE + col;
-                        if(boardService.getBoard().state[index] != null) {
+                        Letters next = wordIterator.next();
+                        if (boardService.getBoard().state[index] != null) {
+                            if (boardService.getBoard().state[index] != next) {
+                                return false;
+                            }
                             continue;
                         }
-                        boardService.getBoard().newState[index] = wordIterator.next();
+                        boardService.getBoard().newState[index] = next;
                         positions.add((row + i) + "-" + col); // Save position
                         aiResultWord.getUsedLetters().add(boardService.getBoard().newState[index]); // Add new used letter
                     }
@@ -136,54 +217,20 @@ public class BruteForceSearch extends AiSearchTask {
                     throw new IllegalArgumentException("Invalid direction: " + dir);
             }
             ValidateBoardTask task = new ValidateBoardTask(board, wordsService);
-            Thread thread = new Thread(task);
-            thread.start();
-            ValidationResult result = task.get();
+            ValidationResult result = task.check();
             printDevmode();
-            if(result.getErrors().isEmpty()) {
+            if (result.getErrors().isEmpty()) {
                 aiResultWord.setPositions(positions);
-                aiResultWord.setWord(result.getAddedWords().get(0));
+                aiResultWord.setWord(result.getAddedWords().stream().max(Comparator.comparingInt(String::length)).get());
                 aiResultWord.setScore(result.getNewScore() - result.getPreviousScore());
                 aiResult.getWords().add(aiResultWord);
-            }
-        } catch (Exception ignore) {}
-    }
-
-    // TODO: Handling when 2 length letters included, for example 'TY'
-    private List<Letters> strToLetters(String str) {
-        List<Letters> res = new ArrayList<>();
-        for(var c : str.toCharArray()) {
-            res.add(Letters.valueOf(c+""));
-        }
-        return res;
-    }
-
-    private void resetState() {
-        for(int i = 0; i < Board.SIZE * Board.SIZE;i++) {
-            board.newState[i] = board.state[i];
-        }
-    }
-
-    private void printDevmode() {
-        try {
-            if(DEVMODE) {
-                System.out.println();
-                System.out.println();
-                for (int row = 0; row < Board.SIZE; row++) {
-                    for (int col = 0; col < Board.SIZE; col++) {
-                        if(board.newState[col * Board.SIZE + row] != null) {
-                            System.out.print(board.newState[col * Board.SIZE + row].toString() + "|");
-                        }else {
-                            System.out.print(" |");
-                        }
-                    }
-                    System.out.println();
+                if(word.size() > longestFoundWord)  {
+                    longestFoundWord = word.size();
                 }
-                Thread.sleep(100);
+                return true;
             }
-        }catch (Exception err) {
-            err.printStackTrace();
-            throw new RuntimeException("Failed to sleep in devmode!");
+        } catch (Exception ignore) {
         }
+        return false;
     }
 }

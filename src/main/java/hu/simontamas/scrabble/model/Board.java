@@ -8,8 +8,8 @@ public class Board implements Serializable {
 
     public static short SIZE = 15;
 
-    public final Letters[] state = new Letters[255];
-    public final Letters[] newState = new Letters[255];
+    public final Letters[] state = new Letters[225];
+    public final Letters[] newState = new Letters[225];
 
     public final static String[][] tiles =
             {

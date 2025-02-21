@@ -18,12 +18,12 @@ public class WordsService extends IWordService {
 
     public WordsService() {
         services = new HashMap<>();
-        services.put(NumberBasedWordsService.class, new NumberBasedWordsService());
         services.put(SimpleWordService.class, new SimpleWordService());
+        services.put(IndexingWordsService.class, new IndexingWordsService());
     }
 
     @Override
-    public Set<String> getWords() {
+    public Map<Integer, List<String>> getWords() {
         return services.get(type).getWords();
     }
 
@@ -37,14 +37,20 @@ public class WordsService extends IWordService {
         return services.get(type).wordExist(word);
     }
 
+
     @Override
-    public List<String> wordsIncludingSecInPosition(int length, String sec, int position) {
-        return services.get(type).wordsIncludingSecInPosition(length, sec, position);
+    public List<String> wordsIncludingSecInPosition(List<String> hand, String sec, int position) {
+        return services.get(type).wordsIncludingSecInPosition(hand, sec, position);
     }
 
     @Override
-    public List<String> wordsIncludingSecInPosition(String[] hand, int length, String sec, int position) {
-        return services.get(type).wordsIncludingSecInPosition(hand, length, sec, position);
+    public List<String> wordsIncludingSec(List<String> hand, String sec) {
+        return services.get(type).wordsIncludingSec(hand, sec);
+    }
+
+    @Override
+    public List<String> wordsIncludingSec(List<String> hand, List<String> sec) {
+        return services.get(type).wordsIncludingSec(hand, sec);
     }
 
     public Class<? extends IWordService> getType() {

@@ -1,53 +1,56 @@
 package hu.simontamas.scrabble.service.wordService;
 
 import hu.simontamas.scrabble.service.IWordService;
+import hu.simontamas.scrabble.utils.WordUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 public class SimpleWordService extends IWordService {
 
-    private final Set<String> words = new HashSet<>();
-
     public SimpleWordService() {
         try {
             loadWords();
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
-    public Set<String> getWords() {
-        return words;
-    }
-
-    public void loadWords() throws IOException {
-        File file = new File(".\\src\\main\\resources\\hu\\simontamas\\scrabble\\assets\\dictionary.txt");
-        InputStream inputStream = new FileInputStream(file);
-        Scanner scanner = new Scanner(inputStream);
-        while(scanner.hasNext()) {
-            words.add(scanner.nextLine());
-        }
-    }
-
-    public boolean wordExist(String word) {
-        return words.contains(word);
-    }
-
-    public List<String> wordsIncludingSecInPosition(int length, String sec, int position) {
+    @Override
+    public List<String> wordsIncludingSecInPosition(List<String> hand, String sec, int position) {
         List<String> result = new ArrayList<>();
 
-        for (String word : words) {
-            // Check if the word length matches
-            if (word.length() == length) {
-                // Check if the substring `sec` appears at the specified position
+        List<String> availableLetters = new ArrayList<>(hand);
+        availableLetters.addAll(Arrays.stream(sec.split("")).toList());
+
+        for (Map.Entry<Integer, List<String>> entry : words.entrySet()) {
+            for (String word : entry.getValue()) {
                 if (position >= 0 && position + sec.length() <= word.length()
                         && word.substring(position, position + sec.length()).equals(sec)) {
+                    if (WordUtils.canFormWord(word, availableLetters)) {
+                        result.add(word);
+                    }
+                }
+            }
+
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<String> wordsIncludingSec(List<String> hand, String sec) {
+        List<String> result = new ArrayList<>();
+
+        List<String> availableLetters = new ArrayList<>(hand);
+        availableLetters.addAll(Arrays.stream(sec.split("")).toList());
+
+        for (Map.Entry<Integer, List<String>> entry : words.entrySet()) {
+            for (String word : entry.getValue()) {
+                if (WordUtils.canFormWord(word, availableLetters)) {
                     result.add(word);
                 }
             }
@@ -56,40 +59,23 @@ public class SimpleWordService extends IWordService {
         return result;
     }
 
-    public List<String> wordsIncludingSecInPosition(String[] hand, int length, String sec, int position) {
+    @Override
+    public List<String> wordsIncludingSec(List<String> hand, List<String> sec) {
         List<String> result = new ArrayList<>();
 
-        List<String> availableLetters = new ArrayList<>(Arrays.stream(hand).toList());
-        availableLetters.addAll(Arrays.stream(sec.split("")).toList());
+        sec.forEach(s -> {
+            List<String> availableLetters = new ArrayList<>(hand);
+            availableLetters.addAll(Arrays.stream(s.split("")).toList());
 
-        for (String word : words) {
-            if (word.length() == length) {
-                if (position >= 0 && position + sec.length() <= word.length()
-                        && word.substring(position, position + sec.length()).equals(sec)) {
-                    if (canFormWord(word, availableLetters)) {
+            for (Map.Entry<Integer, List<String>> entry : words.entrySet()) {
+                for (String word : entry.getValue()) {
+                    if (WordUtils.canFormWord(word, availableLetters)) {
                         result.add(word);
                     }
                 }
             }
-        }
+        });
 
         return result;
-    }
-
-    private boolean canFormWord(String word, List<String> availableLetters) {
-        Map<String, Integer> handCount = new HashMap<>();
-
-        for (String letter : availableLetters) {
-            handCount.put(letter, handCount.getOrDefault(letter, 1));
-        }
-
-        for (String c : word.split("")) {
-            if (!handCount.containsKey(c) || handCount.get(c) == 0) {
-                return false;
-            }
-            handCount.put(c, handCount.get(c) - 1);
-        }
-
-        return true;
     }
 }

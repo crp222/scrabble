@@ -11,10 +11,13 @@ import java.io.IOException;
 public class ScrabbleApplication extends Application {
 
     private static Stage stage;
+
+    private static AnnotationConfigApplicationContext context;
+
     @Override
     public void start(Stage stage) throws IOException {
         ScrabbleApplication.stage = stage;
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context = new AnnotationConfigApplicationContext();
         context.scan("hu.simontamas.scrabble");
         context.refresh();
 
@@ -28,6 +31,15 @@ public class ScrabbleApplication extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public static void loadScene(String fxmlPath) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ScrabbleApplication.class.getResource(fxmlPath));
+        fxmlLoader.setControllerFactory(context::getBean);
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage newStage = new Stage();
+        newStage.setScene(scene);
+        newStage.show();
     }
 
     public static Stage getStage() {

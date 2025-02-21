@@ -3,6 +3,7 @@ package hu.simontamas.scrabble.utils;
 import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.model.Hand;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HandUtils {
@@ -11,8 +12,8 @@ public class HandUtils {
         updateHandState(hand);
         Letters[] handLetters = hand.newState;
 
-        for (int i = 0; i < handLetters.length; i++) {
-            for (Letters letter : letters) {
+        for (Letters letter : letters) {
+            for (int i = 0; i < handLetters.length; i++) {
                 if (handLetters[i] != null && handLetters[i].equals(letter)) {
                     handLetters[i] = null;
                     break;

@@ -62,7 +62,7 @@ public class BoardUtils {
         return state[row * Board.SIZE + col];
     }
 
-    public static void fillInWord(List<String> positions, Letters[] letters, Board board) {
+    public static void fillInWord(List<String> positions, List<Letters> letters, Board board) {
         resetBoard(board);
 
         int k = 0;
@@ -70,13 +70,11 @@ public class BoardUtils {
             String[] positionParts = position.split("-");
             int row = Integer.parseInt(positionParts[0]);
             int col =  Integer.parseInt(positionParts[1]);
-            for(int i=0; i < board.newState.length; i++) {
-                if(i == row * Board.SIZE + col) {
-                    board.newState[i] = letters[k];
-                    k++;
-                    break;
-                }
+            int i = row * Board.SIZE + col;
+            if(board.state[i] == null) {
+                board.newState[i] = letters.get(k);
             }
+            k++;
         }
     }
 

@@ -9,7 +9,6 @@ plugins {
 }
 
 group 'hu.simontamas'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,8 +18,8 @@ ext {
     junitVersion = '5.9.1'
 }
 
-sourceCompatibility = '19'
-targetCompatibility = '19'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -38,6 +37,8 @@ javafx {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'io.micrometer:context-propagation:1.1.2'
+    implementation 'io.projectreactor.tools:blockhound:1.0.8.RELEASE'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

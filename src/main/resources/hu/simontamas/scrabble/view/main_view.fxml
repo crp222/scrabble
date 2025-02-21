@@ -22,14 +22,23 @@
       <Pane fx:id="HandPane" layoutX="48.0" layoutY="679.0" prefHeight="48.0" prefWidth="567.0" />
       <Label layoutX="48.0" layoutY="662.0" prefHeight="17.0" prefWidth="109.0" text="Computer's hand" />
       <Button layoutX="611.0" layoutY="275.0" mnemonicParsing="false" onAction="#runBruteForceSearch" text="Run AI" />
-      <ChoiceBox fx:id="SelectAiComboBox" layoutX="674.0" layoutY="275.0" prefWidth="150.0" />
       <ScrollPane layoutX="605.0" layoutY="312.0" prefHeight="307.0" prefWidth="295.0">
          <content>
             <VBox fx:id="AiResults" prefHeight="307.0" prefWidth="292.0" />
          </content>
       </ScrollPane>
-      <MenuBar layoutX="3.0" layoutY="4.0">
+      <MenuBar layoutX="3.0" layoutY="4.0" prefHeight="25.0" prefWidth="399.0">
          <menus>
+            <Menu mnemonicParsing="false">
+               <graphic>
+                  <ChoiceBox fx:id="SelectAiComboBox" prefHeight="16.0" prefWidth="151.0" />
+               </graphic>
+            </Menu>
+            <Menu mnemonicParsing="false" text="AI Self Game">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#runAiSelfGame" text="Open" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="Board">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#saveBoardInFile" text="Save" />
@@ -40,5 +49,7 @@
       </MenuBar>
       <Button layoutX="157.0" layoutY="650.0" mnemonicParsing="false" onAction="#fillHandWithRandom" text="Fill with random" />
       <Button layoutX="611.0" layoutY="703.0" mnemonicParsing="false" onAction="#saveHand" text="Save Hand" />
+      <Button layoutX="272.0" layoutY="650.0" mnemonicParsing="false" onAction="#resetBag" text="Reset bag" />
+      <Button layoutX="356.0" layoutY="650.0" mnemonicParsing="false" onAction="#viewBag" text="ViewBag" />
    </children>
 </AnchorPane>

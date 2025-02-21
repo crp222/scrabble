@@ -15,7 +15,6 @@ public class AiResult {
     @Setter
     public static class AiResultWord {
         private String word;
-        private Letters[] letters;
         private List<Letters> usedLetters;
         private int score;
         private List<String> positions;
@@ -27,6 +26,14 @@ public class AiResult {
     }
 
     private List<AiResultWord> words = new ArrayList<>();
+
+    public List<String> getStrWords() {
+        List<String> res = new ArrayList<>();
+        for(AiResultWord result : words) {
+            res.add(result.getWord());
+        }
+        return res;
+    }
 
     @Override
     public String toString() {

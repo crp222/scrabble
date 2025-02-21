@@ -2,6 +2,7 @@ package hu.simontamas.scrabble.service;
 
 import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.model.Board;
+import hu.simontamas.scrabble.model.ValidationResult;
 import hu.simontamas.scrabble.service.wordService.SimpleWordService;
 import hu.simontamas.scrabble.service.wordService.WordsService;
 import hu.simontamas.scrabble.threads.ValidateBoardTask;
@@ -111,11 +112,30 @@ public class BoardService {
         });
     }
 
+    public void saveBoard() throws Exception {
+        ValidateBoardTask isBoardValid = new ValidateBoardTask(board, wordService);
+
+        ValidationResult result = isBoardValid.get();
+
+        if (result.getErrors().isEmpty()) {
+            System.arraycopy(board.newState, 0, board.state, 0, Board.SIZE * Board.SIZE);
+        } else {
+            throw new Exception("Invalid Board!");
+        }
+    }
+
     public Board getBoard() {
         return board;
     }
 
     public void setBoard(Board board) {
         this.board = board;
+    }
+
+    public void resetBoard() {
+        for (int i = 0; i < board.state.length; i++) {
+            board.state[i] = null;
+            board.newState[i] = null;
+        }
     }
 }

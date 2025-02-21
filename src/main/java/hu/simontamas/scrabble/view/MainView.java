@@ -3,15 +3,12 @@ package hu.simontamas.scrabble.view;
 import hu.simontamas.scrabble.ScrabbleApplication;
 import hu.simontamas.scrabble.enums.AiS;
 import hu.simontamas.scrabble.model.Board;
-import hu.simontamas.scrabble.service.AiService;
-import hu.simontamas.scrabble.service.BoardService;
-import hu.simontamas.scrabble.service.HandService;
-import hu.simontamas.scrabble.service.StorageService;
-import hu.simontamas.scrabble.threads.BruteForceSearch;
+import hu.simontamas.scrabble.service.*;
 import hu.simontamas.scrabble.utils.HandUtils;
-import javafx.collections.ObservableListBase;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -19,8 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Arrays;
+import java.io.IOException;
 
 @Component
 public class MainView {
@@ -135,5 +131,20 @@ public class MainView {
     public void saveHand() {
         HandUtils.updateHandState(handService.getCurrentHand());
         handService.drawHand(HandPane);
+    }
+
+    @FXML
+    public void resetBag() {
+        handService.resetBag();
+    }
+
+    @FXML
+    public void viewBag() throws IOException {
+        ScrabbleApplication.loadScene("view/bag_view.fxml");
+    }
+
+    @FXML
+    public void runAiSelfGame() throws Exception {
+        ScrabbleApplication.loadScene("view/ai_self_game_view.fxml");
     }
 }

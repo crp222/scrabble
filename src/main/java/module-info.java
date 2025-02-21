@@ -9,6 +9,8 @@ module hu.simontamas.scrabble {
     requires static lombok;
     requires java.management;
     requires org.slf4j;
+    requires micrometer.observation;
+    requires reactor.blockhound;
 
     opens hu.simontamas.scrabble to javafx.fxml;
     opens hu.simontamas.scrabble.view to javafx.fxml;
