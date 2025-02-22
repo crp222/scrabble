@@ -11,10 +11,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public abstract class AiSearchTask extends Task<AiResult> {
 
-    protected static boolean DEVMODE = false;
+    protected static boolean DEVMODE = true;
 
     protected final HandService handService;
-    protected final Board board;
     protected final WordsService wordsService;
     protected final BoardService boardService;
 
@@ -30,16 +29,7 @@ public abstract class AiSearchTask extends Task<AiResult> {
             if (DEVMODE) {
                 System.out.println();
                 System.out.println();
-                for (int row = 0; row < Board.SIZE; row++) {
-                    for (int col = 0; col < Board.SIZE; col++) {
-                        if (board.newState[col * Board.SIZE + row] != null) {
-                            System.out.print(board.newState[col * Board.SIZE + row].toString() + "|");
-                        } else {
-                            System.out.print(" |");
-                        }
-                    }
-                    System.out.println();
-                }
+                BoardUtils.printBoard(boardService.getBoard());
                 Thread.sleep(100);
             }
         } catch (Exception err) {
@@ -50,7 +40,7 @@ public abstract class AiSearchTask extends Task<AiResult> {
 
     protected void resetState() {
         for (int i = 0; i < Board.SIZE * Board.SIZE; i++) {
-            board.newState[i] = board.state[i];
+            boardService.getBoard().newState[i] = boardService.getBoard().state[i];
         }
     }
 

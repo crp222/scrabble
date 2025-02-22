@@ -19,7 +19,7 @@ public class ExactMatchingSearch extends AiSearchTask {
     public int WORD_LIMIT = 10;
 
     public ExactMatchingSearch(HandService handService, WordsService wordsService, BoardService boardService) {
-        super(handService, boardService.getBoard(), wordsService, boardService);
+        super(handService, wordsService, boardService);
         DEVMODE = false;
     }
 
@@ -139,7 +139,7 @@ public class ExactMatchingSearch extends AiSearchTask {
                 break;
             }
 
-            ValidateBoardTask task = new ValidateBoardTask(board, wordsService);
+            ValidateBoardTask task = new ValidateBoardTask(boardService.getBoard(), wordsService);
             ValidationResult result = task.check();
             printDevmode();
 

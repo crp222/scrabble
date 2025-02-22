@@ -23,6 +23,7 @@ public class MainView {
 
     @FXML
     public Pane BoardPane;
+    public static Pane DefaultBoardPane;
 
     @FXML
     public Label ErrorLabel;
@@ -35,6 +36,8 @@ public class MainView {
 
     @FXML
     public Pane HandPane;
+
+    public static Pane DefaultHandPane;
 
     @FXML
     public ChoiceBox<AiS> SelectAiComboBox;
@@ -57,6 +60,9 @@ public class MainView {
 
         SelectAiComboBox.setValue(AiS.BRUTE_FORCE);
         SelectAiComboBox.getItems().addAll(AiS.values());
+
+        DefaultHandPane = HandPane;
+        DefaultBoardPane = BoardPane;
     }
 
     @FXML

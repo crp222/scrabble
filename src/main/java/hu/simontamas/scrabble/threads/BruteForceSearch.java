@@ -35,7 +35,7 @@ public class BruteForceSearch extends AiSearchTask {
     private int maxErrorWithLongestFoundWord = 2;
 
     public BruteForceSearch(HandService handService, WordsService wordsService, BoardService boardService) {
-        super(handService, boardService.getBoard(), wordsService, boardService);
+        super(handService, wordsService, boardService);
         DEVMODE = false;
     }
 
@@ -43,7 +43,7 @@ public class BruteForceSearch extends AiSearchTask {
     public AiResult callAi() throws Exception {
         wordsService.setType(SimpleWordService.class);
         AiResult aiResult = new AiResult();
-        search(board.state, aiResult);
+        search(boardService.getBoard().state, aiResult);
         return aiResult;
     }
 
@@ -216,7 +216,7 @@ public class BruteForceSearch extends AiSearchTask {
                 default:
                     throw new IllegalArgumentException("Invalid direction: " + dir);
             }
-            ValidateBoardTask task = new ValidateBoardTask(board, wordsService);
+            ValidateBoardTask task = new ValidateBoardTask(boardService.getBoard(), wordsService);
             ValidationResult result = task.check();
             printDevmode();
             if (result.getErrors().isEmpty()) {

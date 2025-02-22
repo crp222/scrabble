@@ -5,7 +5,9 @@ import hu.simontamas.scrabble.threads.BruteForceSearch;
 import hu.simontamas.scrabble.threads.ExactMatchingSearch;
 import hu.simontamas.scrabble.utils.AiSearchTask;
 
-public enum AiS {
+import java.io.Serializable;
+
+public enum AiS implements Serializable {
     BRUTE_FORCE("Brute Force Search", BruteForceSearch.class),
     INDEXING_BRUTE_FORCE("Brute Force With Indexing", BruteForceIndexingSearch.class),
 

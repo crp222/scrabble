@@ -3,17 +3,18 @@ package hu.simontamas.scrabble.model;
 import hu.simontamas.scrabble.enums.Letters;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-public class AiResult {
+public class AiResult implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class AiResultWord {
+    public static class AiResultWord implements Serializable{
         private String word;
         private List<Letters> usedLetters;
         private int score;

@@ -20,16 +20,21 @@ import lombok.RequiredArgsConstructor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class AiSelfGameTask extends Task<Void>{
+public class AiSelfGameTask extends Task<Void> {
+
+    private final boolean DEV_MODE = false;
 
     private final BoardService boardService;
     private final HandService handService;
     private final StorageService storageService;
 
-    private int MAX_ITERATIONS = 50;
+    private int MAX_ITERATIONS = 35;
 
     private Letters[] INITIALIZE_WORD = {Letters.S, Letters.H, Letters.O, Letters.R, Letters.T};
 
@@ -37,29 +42,33 @@ public class AiSelfGameTask extends Task<Void>{
 
     private final ProgressBar progressBar;
 
-    private final  Button runButton;
+    private final Button runButton;
 
     private final AiSearchTask ai;
 
-    public void runSelfGame(AiSearchTask ai) throws Exception {
+    private final SelfGameResult gameResult;
+
+    public void runSelfGame(AiSearchTask ai, SelfGameResult gameResult) throws Exception {
         resetState();
         initializeBoardStateWithWord(INITIALIZE_WORD);
         File gameDir = createGameDirectory();
-        saveBoardToGameDir(gameDir);
         ai.setUpFastestSearch();
 
         int k = 0;
         selfGameProgress = 0;
-        AiResult result;
-        SelfGameResult gameResult = new SelfGameResult();
         handService.fillHandWithRandom();
         HandUtils.updateHandState(handService.getCurrentHand());
         while (k < MAX_ITERATIONS) {
-            progressBar.setProgress(selfGameProgress / MAX_ITERATIONS);
-            gameResult.getHands().add(handService.getCurrentHandStr());
-            Thread aiThread = new Thread(ai);
-            aiThread.start();
-            result = ai.get();
+            long startTime = System.currentTimeMillis();
+            if(DEV_MODE) {
+                System.out.println();
+                System.out.println();
+                BoardUtils.printBoardState(boardService.getBoard());
+            }
+
+            progressBar.setProgress((double) selfGameProgress / MAX_ITERATIONS);
+            AiResult result = ai.callAi();
+            gameResult.getResults().add(result);
 
             if (result.getWords().isEmpty()) {
                 break;
@@ -68,20 +77,31 @@ public class AiSelfGameTask extends Task<Void>{
             AiResult.AiResultWord bestResult = result.getWords().stream().max(Comparator.comparingInt(AiResult.AiResultWord::getScore)).get();
             HandUtils.resetHandNewState(handService.getCurrentHand());
             BoardUtils.fillInWord(bestResult.getPositions(), bestResult.getUsedLetters(), boardService.getBoard());
-            HandUtils.removeFromNewHand(bestResult.getUsedLetters(), handService.getCurrentHand());
-            handService.fillHandWithRandom();
-            HandUtils.updateHandState(handService.getCurrentHand());
 
             try {
                 boardService.saveBoard();
                 saveBoardToGameDir(gameDir);
             } catch (Exception err) {
+                err.printStackTrace();
                 saveBoardToGameDir(gameDir, "invalid");
             }
 
+            HandUtils.removeFromNewHand(bestResult.getUsedLetters(), handService.getCurrentHand());
+
+            gameResult.getHands().add(handService.getCurrentHandStr());
+
+            handService.fillHandWithRandom();
+            HandUtils.updateHandState(handService.getCurrentHand());
+
+            gameResult.getBag().add(new HashMap<>(handService.getCurrentBag()));
+
             k++;
             selfGameProgress++;
+
+            gameResult.getTimes().add(System.currentTimeMillis() - startTime);
         }
+
+        storageService.serializeDataOut(Path.of(gameDir.getPath(), "data").toString(), gameResult);
     }
 
     private void resetState() {
@@ -143,7 +163,7 @@ public class AiSelfGameTask extends Task<Void>{
             }
         }
 
-        String boardFilePath = "board-" + lastBoardIndex + "-" + info;
+        String boardFilePath = "board-" + (lastBoardIndex + 1) + "-" + Arrays.stream(INITIALIZE_WORD).map(Letters::toString).collect(Collectors.joining("")) + "-" + info;
 
         storageService.serializeDataOut(Path.of(gameDir.getPath(), boardFilePath) + ".board", boardService.getBoard());
     }
@@ -152,12 +172,13 @@ public class AiSelfGameTask extends Task<Void>{
     protected Void call() throws Exception {
         runButton.setDisable(true);
         try {
-            runSelfGame(ai);
+            runSelfGame(ai, gameResult);
         } catch (Exception err) {
             err.printStackTrace();
             throw new RuntimeException();
         }
         runButton.setDisable(false);
+        progressBar.setProgress(0.0);
         return null;
     }
 }

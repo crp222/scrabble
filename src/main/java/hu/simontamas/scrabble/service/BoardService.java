@@ -98,7 +98,6 @@ public class BoardService {
             return null;
         });
     }
-
     public void validateBoard(Label errorLabel, Label scoreLabel) {
         wordService.setType(SimpleWordService.class);
         validateBoard(errorLabel, scoreLabel, null);
@@ -114,7 +113,8 @@ public class BoardService {
 
     public void saveBoard() throws Exception {
         ValidateBoardTask isBoardValid = new ValidateBoardTask(board, wordService);
-
+        Thread thread = new Thread(isBoardValid);
+        thread.start();
         ValidationResult result = isBoardValid.get();
 
         if (result.getErrors().isEmpty()) {

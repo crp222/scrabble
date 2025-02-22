@@ -12,6 +12,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,6 +21,8 @@ import java.util.*;
 import static hu.simontamas.scrabble.config.Constants.LETTERS;
 
 @Service
+@Setter
+@Getter
 public class HandService {
 
     private static final Map<Letters, Integer> bag = Map.ofEntries(
@@ -33,7 +37,7 @@ public class HandService {
 
     private Map<Letters, Integer> currentBag = new HashMap<>(bag);
 
-    private final Hand currentHand = new Hand();
+    private Hand currentHand = new Hand();
 
     private final Random random = new Random();
 

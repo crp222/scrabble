@@ -19,7 +19,7 @@ public class BruteForceIndexingSearch extends BruteForceSearch {
     public AiResult callAi() throws Exception {
         wordsService.setType(IndexingWordsService.class);
         AiResult aiResult = new AiResult();
-        search(board.state, aiResult);
+        search(boardService.getBoard().state, aiResult);
         return aiResult;
     }
 

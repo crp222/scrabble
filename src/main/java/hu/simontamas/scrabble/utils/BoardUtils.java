@@ -84,4 +84,29 @@ public class BoardUtils {
         }
     }
 
+    public static void printBoard(Board board) {
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int col = 0; col < Board.SIZE; col++) {
+                if (board.newState[col * Board.SIZE + row] != null) {
+                    System.out.print(board.newState[col * Board.SIZE + row].toString() + "|");
+                } else {
+                    System.out.print(" |");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public static void printBoardState(Board board) {
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int col = 0; col < Board.SIZE; col++) {
+                if (board.state[col * Board.SIZE + row] != null) {
+                    System.out.print(board.state[col * Board.SIZE + row].toString() + "|");
+                } else {
+                    System.out.print(" |");
+                }
+            }
+            System.out.println();
+        }
+    }
 }
