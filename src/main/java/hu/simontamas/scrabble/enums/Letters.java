@@ -42,8 +42,9 @@ public enum Letters {
     X(10),
     Y(8),
     //ZS(7),
-    Z(5);
+    Z(5),
 
+    __(0);
 
     public final int value;
 

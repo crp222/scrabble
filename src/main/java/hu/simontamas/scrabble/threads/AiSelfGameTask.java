@@ -4,6 +4,7 @@ import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.exceptions.BagException;
 import hu.simontamas.scrabble.model.AiResult;
 import hu.simontamas.scrabble.model.Board;
+import hu.simontamas.scrabble.model.LettersStats;
 import hu.simontamas.scrabble.model.SelfGameResult;
 import hu.simontamas.scrabble.service.BoardService;
 import hu.simontamas.scrabble.service.HandService;
@@ -70,6 +71,9 @@ public class AiSelfGameTask extends Task<Void> {
             AiResult result = ai.callAi();
             gameResult.getResults().add(result);
 
+            LettersStats lettersStats = new LettersStats();
+            lettersStats.setHand(Arrays.asList(handService.getCurrentHand().state));
+
             if (result.getWords().isEmpty()) {
                 break;
             }
@@ -79,11 +83,12 @@ public class AiSelfGameTask extends Task<Void> {
             BoardUtils.fillInWord(bestResult.getPositions(), bestResult.getUsedLetters(), boardService.getBoard());
 
             try {
-                boardService.saveBoard();
                 saveBoardToGameDir(gameDir);
+                boardService.saveBoard();
             } catch (Exception err) {
                 err.printStackTrace();
                 saveBoardToGameDir(gameDir, "invalid");
+                throw new RuntimeException();
             }
 
             HandUtils.removeFromNewHand(bestResult.getUsedLetters(), handService.getCurrentHand());
@@ -99,6 +104,14 @@ public class AiSelfGameTask extends Task<Void> {
             selfGameProgress++;
 
             gameResult.getTimes().add(System.currentTimeMillis() - startTime);
+
+            lettersStats.setThinkingTime(System.currentTimeMillis() - startTime);
+
+            for(Letters l : lettersStats.getHand()) {
+                lettersStats.addLetterStat(l);
+            }
+
+            gameResult.getLettersStats().add(lettersStats);
         }
 
         storageService.serializeDataOut(Path.of(gameDir.getPath(), "data").toString(), gameResult);
@@ -130,9 +143,13 @@ public class AiSelfGameTask extends Task<Void> {
             throw new RuntimeException("Games directory doesn't exist");
         }
         int gameDirIndex = 1;
-        File gameDir = new File("games/game-0");
+        File gameDir = new File("games/game-0" +
+                "-" + Arrays.stream(INITIALIZE_WORD).map(Letters::toString).collect(Collectors.joining("")) +
+                "-" + ai.getClass().getSimpleName());
         while (gameDir.exists()) {
-            gameDir = new File("games/game-" + gameDirIndex);
+            gameDir = new File("games/game-" + gameDirIndex +
+                    "-" + Arrays.stream(INITIALIZE_WORD).map(Letters::toString).collect(Collectors.joining("")) +
+                    "-" + ai.getClass().getSimpleName());
             gameDirIndex++;
         }
         if (!gameDir.mkdir()) {
@@ -163,7 +180,7 @@ public class AiSelfGameTask extends Task<Void> {
             }
         }
 
-        String boardFilePath = "board-" + (lastBoardIndex + 1) + "-" + Arrays.stream(INITIALIZE_WORD).map(Letters::toString).collect(Collectors.joining("")) + "-" + info;
+        String boardFilePath = "board-" + (lastBoardIndex + 1) + "-" + info;
 
         storageService.serializeDataOut(Path.of(gameDir.getPath(), boardFilePath) + ".board", boardService.getBoard());
     }
@@ -181,4 +198,5 @@ public class AiSelfGameTask extends Task<Void> {
         progressBar.setProgress(0.0);
         return null;
     }
+
 }

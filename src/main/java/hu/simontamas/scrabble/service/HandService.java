@@ -109,7 +109,7 @@ public class HandService {
         // TODO : Make clear user indication when bag is empty
         for (int i = 0; i < Hand.SIZE; i++) {
             if (currentHand.newState[i] == null) {
-                currentHand.newState[i] = Letters.X;
+                currentHand.newState[i] = Letters.__;
             }
         }
     }

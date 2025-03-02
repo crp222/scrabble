@@ -18,4 +18,5 @@ public class SelfGameResult implements Serializable {
     private List<AiResult> results = new ArrayList<>();
     private AiS ai;
     private List<Long> times = new ArrayList<>();
+    private List<LettersStats> lettersStats = new ArrayList<>();
 }

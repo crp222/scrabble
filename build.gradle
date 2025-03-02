@@ -60,3 +60,18 @@ jlink {
 jlinkZip {
     group = 'distribution'
 }
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'hu.simontamas.scrabble.ScrabbleApplication'
+        )
+    }
+}
+
+task copyAssets(type: Copy) {
+    from "$projectDir/src/main/resources/hu/simontamas/scrabble/assets"
+    into "$buildDir/libs/src/main/resources/hu/simontamas/scrabble/assets"
+}
+
+processResources.dependsOn copyAssets

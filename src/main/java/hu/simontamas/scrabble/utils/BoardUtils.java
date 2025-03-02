@@ -2,16 +2,12 @@ package hu.simontamas.scrabble.utils;
 
 import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.model.Board;
-import hu.simontamas.scrabble.service.BoardService;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BoardUtils {
     public static List<String> getNeighboringPositions(int row, int col) {
-        LinkedList<String> neighbors = new LinkedList<>();
+        ArrayList<String> neighbors = new ArrayList<>();
         // Down neighbor
         String downNeighbor = (row + 1) + "-" + col;
         if (row + 1 < Board.SIZE) {

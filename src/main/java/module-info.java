@@ -5,6 +5,8 @@ module hu.simontamas.scrabble {
     requires spring.context;
     requires spring.core;
     requires spring.boot.starter;
+    requires spring.boot;
+    requires spring.boot.autoconfigure;
     requires spring.aop;
     requires static lombok;
     requires java.management;
@@ -12,7 +14,7 @@ module hu.simontamas.scrabble {
     requires micrometer.observation;
     requires reactor.blockhound;
 
-    opens hu.simontamas.scrabble to javafx.fxml;
+    opens hu.simontamas.scrabble to spring.core;
     opens hu.simontamas.scrabble.view to javafx.fxml;
     opens hu.simontamas.scrabble.service to spring.core;
     exports hu.simontamas.scrabble;

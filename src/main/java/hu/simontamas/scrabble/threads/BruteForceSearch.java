@@ -4,7 +4,6 @@ import hu.simontamas.scrabble.enums.Letters;
 import hu.simontamas.scrabble.exceptions.AiException;
 import hu.simontamas.scrabble.model.AiResult;
 import hu.simontamas.scrabble.model.Board;
-import hu.simontamas.scrabble.model.Position;
 import hu.simontamas.scrabble.model.ValidationResult;
 import hu.simontamas.scrabble.service.BoardService;
 import hu.simontamas.scrabble.service.HandService;
@@ -26,13 +25,11 @@ public class BruteForceSearch extends AiSearchTask {
 
     public static int MAX_WORD_COUNT = 10;
 
-    private final Set<String> hookerWords = new HashSet<>();
+    protected final Set<String> hookerWords = new HashSet<>();
 
-    private final Set<String> positionDirAlreadyCheckedMap = new HashSet<>();
+    protected int longestFoundWord = 0;
 
-    private int longestFoundWord = 0;
-
-    private int maxErrorWithLongestFoundWord = 2;
+    private final int maxErrorWithLongestFoundWord = 2;
 
     public BruteForceSearch(HandService handService, WordsService wordsService, BoardService boardService) {
         super(handService, wordsService, boardService);
@@ -41,6 +38,8 @@ public class BruteForceSearch extends AiSearchTask {
 
     @Override
     public AiResult callAi() throws Exception {
+        this.hookerWords.clear();
+        longestFoundWord = 0;
         wordsService.setType(SimpleWordService.class);
         AiResult aiResult = new AiResult();
         search(boardService.getBoard().state, aiResult);
@@ -127,19 +126,14 @@ public class BruteForceSearch extends AiSearchTask {
 
                 List<Letters> letters = WordUtils.strToLetters(word);
 
-                Position p = Position.builder().x(row).y(col).build();
-                if (!positionDirAlreadyCheckedMap.contains(p + ": 0")){
-                    if (tryToFillWord(aiResult, row, col, letters, 0, j)) {
-                        foundWordCount++;
-                    }
+                if (tryToFillWord(aiResult, row, col, letters, 0, j)) {
+                    foundWordCount++;
                 }
 
                 resetState();
 
-                if (!positionDirAlreadyCheckedMap.contains(p + ": 1")) {
-                    if (tryToFillWord(aiResult, row, col, letters, 1, j)) {
-                        foundWordCount++;
-                    }
+                if (tryToFillWord(aiResult, row, col, letters, 1, j)) {
+                    foundWordCount++;
                 }
 
                 resetState();

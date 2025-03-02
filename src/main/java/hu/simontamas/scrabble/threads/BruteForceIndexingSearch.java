@@ -11,12 +11,15 @@ import hu.simontamas.scrabble.utils.WordUtils;
 import java.util.List;
 
 public class BruteForceIndexingSearch extends BruteForceSearch {
+
     public BruteForceIndexingSearch(HandService handService, WordsService wordsService, BoardService boardService) {
         super(handService, wordsService, boardService);
     }
 
     @Override
     public AiResult callAi() throws Exception {
+        this.hookerWords.clear();
+        longestFoundWord = 0;
         wordsService.setType(IndexingWordsService.class);
         AiResult aiResult = new AiResult();
         search(boardService.getBoard().state, aiResult);
@@ -51,5 +54,10 @@ public class BruteForceIndexingSearch extends BruteForceSearch {
                 }
             }
         }
+    }
+
+    @Override
+    public void setUpFastestSearch() {
+        MAX_WORD_COUNT = 5;
     }
 }

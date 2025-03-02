@@ -22,6 +22,7 @@ public class SelfGameResultViewEntity {
         private ValidationResult validationResult;
         private Long time;
         private Map<Letters, Integer> bag;
+        private LettersStats lettersStats;
     }
 
     List<SelfGameResultState> states = new ArrayList<>();

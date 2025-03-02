@@ -11,12 +11,12 @@ import java.util.*;
 
 public class IndexingWordsService extends IWordService {
 
-    private final Map<String, Set<String>> dictionaryMap = new HashMap<>();
+    private final Map<String, TreeMap<Integer, List<String>>> dictionaryMap = new HashMap<>();
 
     public IndexingWordsService() {
         try {
             loadWords();
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -39,33 +39,32 @@ public class IndexingWordsService extends IWordService {
         for (int i = 0; i < word.length(); i++) {
             String key = i + "-" + word.charAt(i);
             if (!dictionaryMap.containsKey(key)) {
-                dictionaryMap.put(key, new TreeSet<>());
+                dictionaryMap.put(key, new TreeMap<>());
             }
-            dictionaryMap.get(key).add(word);
+            if (!dictionaryMap.get(key).containsKey(word.length())) {
+                dictionaryMap.get(key).put(word.length(), new ArrayList<>());
+            }
+            dictionaryMap.get(key).get(word.length()).add(word);
         }
     }
 
     @Override
     public List<String> wordsIncludingSecInPosition(List<String> hand, String sec, int position) {
         List<String> result = new ArrayList<>();
-        Set<String> words = new TreeSet<>();
-        for (int i = 0; i < sec.length(); i++) {
-            Set<String> wordsWithCriteria = dictionaryMap.get(position + i + "-" + sec.charAt(i));
-            if(wordsWithCriteria != null) {
-                if (words.isEmpty()) {
-                    words.addAll(wordsWithCriteria);
-                } else {
-                    words.removeIf(word -> !wordsWithCriteria.contains(word));
-                }
-            }
-        }
 
         List<String> availableLetters = new ArrayList<>(hand);
         availableLetters.addAll(Arrays.stream(sec.split("")).toList());
 
-        for (String word : words) {
-            if (WordUtils.canFormWord(word, availableLetters)) {
-                result.add(word);
+        for (int i = 0; i < sec.length(); i++) {
+            Map<Integer, List<String>> m = dictionaryMap.get(position + i + "-" + sec.charAt(i));
+            if (m != null) {
+                for (Map.Entry<Integer, List<String>> entry : m.entrySet()) {
+                    for (String word : entry.getValue()) {
+                        if (WordUtils.canFormWord(word, availableLetters)) {
+                            result.add(word);
+                        }
+                    }
+                }
             }
         }
 

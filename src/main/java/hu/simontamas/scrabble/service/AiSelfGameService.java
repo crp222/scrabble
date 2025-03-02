@@ -26,17 +26,15 @@ public class AiSelfGameService {
     private final BoardService boardService;
     private final HandService handService;
     private final StorageService storageService;
-    private final ThreadService threadService;
-
     private final WordsService wordsService;
 
-    public void runSelfGameOnDifferentThread(AiS ai, ProgressBar progressBar, Button runButton) throws Exception {
+    public AiSelfGameTask getSelfGameOnDifferentThread(AiS ai, ProgressBar progressBar, Button runButton) throws Exception {
         AiSearchTask aiTask = ai.type.getDeclaredConstructor(HandService.class, WordsService.class, BoardService.class)
                 .newInstance(handService, wordsService, boardService);
         SelfGameResult result = new SelfGameResult();
         result.setAi(ai);
         AiSelfGameTask task = new AiSelfGameTask(boardService, handService, storageService, progressBar, runButton, aiTask, result);
-        threadService.runTask(task, unused -> null);
+        return task;
     }
 
     public SelfGameResultViewEntity loadSelfGame(File file) throws Exception {
@@ -75,6 +73,7 @@ public class AiSelfGameService {
                     .validationResult(validateBoardTask.check())
                     .bag(result.getBag().get(i))
                     .time(result.getTimes().get(i))
+                    .lettersStats(result.getLettersStats().get(i))
                     .build()
             );
         }

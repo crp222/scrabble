@@ -1,9 +1,13 @@
 package hu.simontamas.scrabble.view;
 
+import hu.simontamas.scrabble.FxmlApplication;
 import hu.simontamas.scrabble.ScrabbleApplication;
 import hu.simontamas.scrabble.enums.AiS;
 import hu.simontamas.scrabble.model.Board;
-import hu.simontamas.scrabble.service.*;
+import hu.simontamas.scrabble.service.AiService;
+import hu.simontamas.scrabble.service.BoardService;
+import hu.simontamas.scrabble.service.HandService;
+import hu.simontamas.scrabble.service.StorageService;
 import hu.simontamas.scrabble.utils.HandUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -90,7 +94,7 @@ public class MainView {
         fileChooser.setTitle("Save board");
         fileChooser.setInitialFileName("boardData.board");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Files", "*.board"));
-        File file = fileChooser.showSaveDialog(ScrabbleApplication.getStage());
+        File file = fileChooser.showSaveDialog(FxmlApplication.getStage());
         if (file != null) {
             try {
                 storageService.serializeDataOut(file.getPath(), boardService.getBoard());
@@ -110,7 +114,7 @@ public class MainView {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Load board");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Files", "*.board"));
-        File file = fileChooser.showOpenDialog(ScrabbleApplication.getStage());
+        File file = fileChooser.showOpenDialog(FxmlApplication.getStage());
         if (file != null) {
             try {
                 Board board = (Board) storageService.serializeDataIn(file.getPath());
@@ -146,11 +150,11 @@ public class MainView {
 
     @FXML
     public void viewBag() throws IOException {
-        ScrabbleApplication.loadScene("view/bag_view.fxml");
+        FxmlApplication.loadScene("view/bag_view.fxml");
     }
 
     @FXML
     public void runAiSelfGame() throws Exception {
-        ScrabbleApplication.loadScene("view/ai_self_game_view.fxml");
+        FxmlApplication.loadScene("view/ai_self_game_view.fxml");
     }
 }
